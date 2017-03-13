@@ -31,6 +31,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_SELECT_BACK_PICTURE = 0x02;
     private static final int REQUEST_CROP_FRONT_PICTURE = 0x03;
     private static final int REQUEST_CROP_BACK_PICTURE = 0x04;
+    private static final int REQUEST_TO_EDIT_FRONT = 0x05;
+    private static final int REQUEST_TO_EDIT_BACK = 0x06;
     @BindView(R.id.iv_front)
     ImageView ivFront;
     @BindView(R.id.iv_back)
@@ -38,12 +40,60 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @BindView(R.id.iv_merge)
     ImageView ivMerge;
     private int tempRequestCode;
+    private Uri mFrontUri;
+    private Uri mBackUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        initListener();
+    }
+
+    private void initListener() {
+        ivFront.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mFrontUri != null) {
+                    showAlertDialog("图片裁剪", "是否要对前景图片进行裁剪？",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startCropActivity(mFrontUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
+                                }
+                            }, "裁剪",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }, "取消");
+                }
+                return true;
+            }
+        });
+        ivBack.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mBackUri != null) {
+                    showAlertDialog("图片裁剪", "是否要对背景图片进行裁剪？",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startCropActivity(mBackUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
+                                }
+                            }, "裁剪",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }, "取消");
+                }
+                return true;
+            }
+        });
     }
 
     private void pickFromGallery(int requestCode) {
@@ -97,6 +147,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case REQUEST_SELECT_FRONT_PICTURE:
                 if (resultCode == RESULT_OK) {
                     final Uri selectedUri = data.getData();
+                    mFrontUri = selectedUri;
                     if (selectedUri != null) {
                         showAlertDialog("图片裁剪", "是否要对前景图片进行裁剪？",
                                 new DialogInterface.OnClickListener() {
@@ -119,6 +170,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case REQUEST_SELECT_BACK_PICTURE:
                 if (resultCode == RESULT_OK) {
                     final Uri selectedUri = data.getData();
+                    mBackUri = selectedUri;
                     if (selectedUri != null) {
                         showAlertDialog("图片裁剪", "是否要对背景图片进行裁剪？",
                                 new DialogInterface.OnClickListener() {
@@ -141,6 +193,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case REQUEST_CROP_FRONT_PICTURE:
                 if (resultCode == RESULT_OK) {
                     final Uri resultUri = UCrop.getOutput(data);
+                    mFrontUri = resultUri;
                     if (resultUri != null) {
                         showPicture(ivFront, resultUri);
                     }
@@ -151,6 +204,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case REQUEST_CROP_BACK_PICTURE:
                 if (resultCode == RESULT_OK) {
                     final Uri resultUri = UCrop.getOutput(data);
+                    mBackUri = resultUri;
                     if (resultUri != null) {
                         showPicture(ivBack, resultUri);
                     }
@@ -256,10 +310,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 pickFromGallery(REQUEST_SELECT_BACK_PICTURE);
                 break;
             case R.id.iv_front:
-                pickFromGallery(REQUEST_SELECT_FRONT_PICTURE);
+                if (mFrontUri == null) {
+                    pickFromGallery(REQUEST_SELECT_FRONT_PICTURE);
+                } else {
+                    Intent intent = new Intent(this, EditFrontActivity.class);
+                    intent.putExtra(EditFrontActivity.INTENT_URI, mFrontUri);
+                    startActivityForResult(intent, REQUEST_TO_EDIT_FRONT);
+                }
                 break;
             case R.id.iv_back:
-                pickFromGallery(REQUEST_SELECT_BACK_PICTURE);
+                if (mBackUri == null) {
+                    pickFromGallery(REQUEST_SELECT_BACK_PICTURE);
+                } else {
+                    Intent intent = new Intent(this, EditBackActivity.class);
+                    intent.putExtra(EditBackActivity.INTENT_URI, mFrontUri);
+                    startActivityForResult(intent, REQUEST_TO_EDIT_BACK);
+                }
                 break;
             case R.id.btn_merge:
                 Toast.makeText(MainActivity.this, "进行融合,暂未开放~", Toast.LENGTH_SHORT).show();
