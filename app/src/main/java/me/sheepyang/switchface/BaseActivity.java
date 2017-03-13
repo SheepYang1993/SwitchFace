@@ -1,13 +1,13 @@
 package me.sheepyang.switchface;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-
-import me.sheepyang.switchface.R;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -17,7 +17,14 @@ public class BaseActivity extends AppCompatActivity {
     protected static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
     protected static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 102;
 
+    public Context mContext;
     private AlertDialog mAlertDialog;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = this;
+    }
 
     /**
      * Hide alert dialog if any.

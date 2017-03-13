@@ -34,11 +34,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_TO_EDIT_FRONT = 0x05;
     private static final int REQUEST_TO_EDIT_BACK = 0x06;
     @BindView(R.id.iv_front)
-    ImageView ivFront;
+    ImageView mIvFront;
     @BindView(R.id.iv_back)
-    ImageView ivBack;
+    ImageView mIvBack;
     @BindView(R.id.iv_merge)
-    ImageView ivMerge;
+    ImageView mIvMerge;
     private int tempRequestCode;
     private Uri mFrontUri;
     private Uri mBackUri;
@@ -52,7 +52,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initListener() {
-        ivFront.setOnLongClickListener(new View.OnLongClickListener() {
+        mIvFront.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (mFrontUri != null) {
@@ -73,7 +73,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 return true;
             }
         });
-        ivBack.setOnLongClickListener(new View.OnLongClickListener() {
+        mIvBack.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (mBackUri != null) {
@@ -159,7 +159,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        showPicture(ivFront, selectedUri);
+                                        showPicture(mIvFront, selectedUri);
                                     }
                                 }, "取消");
                     } else {
@@ -182,7 +182,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        showPicture(ivBack, selectedUri);
+                                        showPicture(mIvBack, selectedUri);
                                     }
                                 }, "取消");
                     } else {
@@ -195,7 +195,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     final Uri resultUri = UCrop.getOutput(data);
                     mFrontUri = resultUri;
                     if (resultUri != null) {
-                        showPicture(ivFront, resultUri);
+                        showPicture(mIvFront, resultUri);
                     }
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     handleCropError(data);
@@ -206,7 +206,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     final Uri resultUri = UCrop.getOutput(data);
                     mBackUri = resultUri;
                     if (resultUri != null) {
-                        showPicture(ivBack, resultUri);
+                        showPicture(mIvBack, resultUri);
                     }
                 } else if (resultCode == UCrop.RESULT_ERROR) {
                     handleCropError(data);

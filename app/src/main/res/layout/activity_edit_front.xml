@@ -9,21 +9,54 @@
     android:padding="10dp"
     tools:context="me.sheepyang.switchface.EditFrontActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="饱和度:"/>
+
+        <TextView
+            android:id="@+id/tv_saturation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="100%"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="滑动距离:"/>
+
+        <TextView
+            android:id="@+id/tv_total_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"/>
+    </LinearLayout>
+
     <ImageView
+        android:id="@+id/iv_front"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="10dp"
         android:layout_weight="1"/>
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
+        android:id="@+id/wheel_saturation"
         android:layout_width="match_parent"
         android:layout_height="35dp"/>
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
+        android:id="@+id/wheel_brightness"
         android:layout_width="match_parent"
         android:layout_height="35dp"/>
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
+        android:id="@+id/wheel_contrast"
         android:layout_width="match_parent"
         android:layout_height="35dp"/>
 </LinearLayout>
