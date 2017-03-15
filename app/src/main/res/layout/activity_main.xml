@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    tools:context="me.sheepyang.switchface.MainActivity">
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            tools:context="me.sheepyang.switchface.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,27 +26,29 @@
             android:text="@string/app_name"
             android:textColor="@color/colorAccent"
             android:textSize="42sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btn_select_front"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:text="选择前景"
             android:textAllCaps="true"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btn_select_back"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:text="选择背景"
             android:textAllCaps="true"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <View
             android:layout_width="match_parent"
@@ -55,7 +57,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="10dp"
-            android:background="@color/colorAccent" />
+            android:background="@color/colorAccent"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -73,7 +75,7 @@
                     android:id="@+id/iv_front"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
-                    android:src="@drawable/select_image" />
+                    android:src="@drawable/select_image"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -82,7 +84,7 @@
                     android:textAllCaps="true"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"/>
             </LinearLayout>
 
             <LinearLayout
@@ -96,7 +98,7 @@
                     android:id="@+id/iv_back"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
-                    android:src="@drawable/select_image" />
+                    android:src="@drawable/select_image"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -105,7 +107,7 @@
                     android:textAllCaps="true"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/colorAccent"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -114,13 +116,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="5dp"
             android:paddingLeft="50dp"
             android:paddingRight="50dp"
             android:text="合成"
             android:textAllCaps="true"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <View
             android:layout_width="match_parent"
@@ -129,7 +132,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="10dp"
-            android:background="@color/colorAccent" />
+            android:background="@color/colorAccent"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -141,7 +144,7 @@
                 android:id="@+id/iv_merge"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:src="@drawable/select_image" />
+                android:src="@drawable/select_image"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -150,7 +153,7 @@
                 android:textAllCaps="true"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textColor="@color/colorAccent"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <Button
@@ -158,20 +161,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="5dp"
             android:paddingLeft="50dp"
             android:paddingRight="50dp"
             android:text="分享"
             android:textAllCaps="true"
             android:textAppearance="?android:textAppearanceMedium"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
-            android:text="© SheepYang" />
+            android:text="© SheepYang"/>
     </LinearLayout>
 
 </ScrollView>

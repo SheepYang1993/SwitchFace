@@ -176,4 +176,7 @@ public class PhotoEnhance
 
 	}
 
+	public void setBitmap(Bitmap bitmap) {
+		mBitmap = bitmap;
+	}
 }

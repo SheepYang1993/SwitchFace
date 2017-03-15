@@ -149,19 +149,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     final Uri selectedUri = data.getData();
                     mFrontUri = selectedUri;
                     if (selectedUri != null) {
-                        showAlertDialog("图片裁剪", "是否要对前景图片进行裁剪？",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startCropActivity(selectedUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
-                                    }
-                                }, "裁剪",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        showPicture(mIvFront, selectedUri);
-                                    }
-                                }, "取消");
+//                        showAlertDialog("图片裁剪", "是否要对前景图片进行裁剪？",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+                        startCropActivity(selectedUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
+//                                    }
+//                                }, "裁剪",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        showPicture(mIvFront, selectedUri);
+//                                    }
+//                                }, "取消");
                     } else {
                         Toast.makeText(MainActivity.this, "获取图片失败", Toast.LENGTH_SHORT).show();
                     }
@@ -172,19 +172,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     final Uri selectedUri = data.getData();
                     mBackUri = selectedUri;
                     if (selectedUri != null) {
-                        showAlertDialog("图片裁剪", "是否要对背景图片进行裁剪？",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startCropActivity(selectedUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
-                                    }
-                                }, "裁剪",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        showPicture(mIvBack, selectedUri);
-                                    }
-                                }, "取消");
+//                        showAlertDialog("图片裁剪", "是否要对背景图片进行裁剪？",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+                        startCropActivity(selectedUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
+//                                    }
+//                                }, "裁剪",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        showPicture(mIvBack, selectedUri);
+//                                    }
+//                                }, "取消");
                     } else {
                         Toast.makeText(MainActivity.this, "获取图片失败", Toast.LENGTH_SHORT).show();
                     }
@@ -229,7 +229,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), fileName)));
 
         //使用图片纵横比
-        uCrop = uCrop.useSourceImageAspectRatio();
+        uCrop = uCrop.withAspectRatio(1, 1);
         uCrop = advancedConfig(uCrop);
 
         uCrop.start(MainActivity.this, resquestCode);
