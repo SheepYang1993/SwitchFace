@@ -1,4 +1,4 @@
-package me.sheepyang.switchface;
+package me.sheepyang.switchface.activity;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+
+import me.sheepyang.switchface.utils.ToastUtil;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -82,4 +84,7 @@ public class BaseActivity extends AppCompatActivity {
         mAlertDialog = builder.show();
     }
 
+    public void showToast(String msg) {
+        ToastUtil.showShortToast(mContext, msg);
+    }
 }

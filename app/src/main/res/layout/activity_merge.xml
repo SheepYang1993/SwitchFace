@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tb="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_merge"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="me.sheepyang.switchface.activity.MergeActivity">
+
+    <me.sheepyang.switchface.widget.TitleBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tb:title_text="合成表情"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_container"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:orientation="vertical">
+    </RelativeLayout>
+
+</LinearLayout>

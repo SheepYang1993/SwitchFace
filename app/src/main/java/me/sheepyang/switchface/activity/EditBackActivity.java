@@ -1,6 +1,8 @@
-package me.sheepyang.switchface;
+package me.sheepyang.switchface.activity;
 
 import android.os.Bundle;
+
+import me.sheepyang.switchface.R;
 
 public class EditBackActivity extends BaseActivity {
     public static final String INTENT_URI = "intent_uri";

@@ -5,22 +5,19 @@
     android:id="@+id/activity_edit_front"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="me.sheepyang.switchface.EditFrontActivity">
+    tools:context="me.sheepyang.switchface.activity.EditFrontActivity">
 
-    <LinearLayout
-        android:id="@+id/ll_title_bar"
+    <me.sheepyang.switchface.widget.TitleBar
+        android:id="@+id/title_bar"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="@color/colorAccent"
-        android:orientation="horizontal">
-
-    </LinearLayout>
+        android:layout_height="wrap_content"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/ll_bottom"
-        android:layout_below="@+id/ll_title_bar">
+        android:background="@android:color/black"
+        android:layout_below="@+id/title_bar">
 
         <ImageView
             android:id="@+id/iv_front"
@@ -108,5 +105,19 @@
             android:id="@+id/wheel_contrast"
             android:layout_width="match_parent"
             android:layout_height="35dp"/>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="5dp"
+            android:paddingLeft="60dp"
+            android:paddingRight="60dp"
+            android:text="保存"
+            android:textAllCaps="true"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"/>
     </LinearLayout>
 </RelativeLayout>

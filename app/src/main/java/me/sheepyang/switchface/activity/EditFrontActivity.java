@@ -1,7 +1,8 @@
-package me.sheepyang.switchface;
+package me.sheepyang.switchface.activity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -13,30 +14,35 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import me.sheepyang.switchface.enhance.PhotoEnhance;
+import butterknife.OnClick;
+import me.sheepyang.switchface.R;
+import me.sheepyang.switchface.utils.AppUtil;
+import me.sheepyang.switchface.utils.CropUtil;
+import me.sheepyang.switchface.utils.enhance.PhotoEnhance;
+import me.sheepyang.switchface.widget.TitleBar;
 
 /**
  * 编辑前景图片
  */
-public class EditFrontActivity extends BaseActivity implements View.OnTouchListener {
+public class EditFrontActivity extends BaseActivity implements View.OnTouchListener, View.OnClickListener {
 
     public static final String INTENT_URI = "intent_uri";
     private static final int POST_SATURATION = 0x01;
     private static final int POST_BRIGHTNESS = 0x02;
     private static final int POST_CONTRAST = 0x03;
+    private static final int REQUEST_CROP_FRONT_PICTURE = 0x01;
 
     @BindView(R.id.iv_front)
     ImageView mIvFront;
@@ -52,22 +58,18 @@ public class EditFrontActivity extends BaseActivity implements View.OnTouchListe
     TextView mTvBrightness;
     @BindView(R.id.tv_contrast)
     TextView mTvContrast;
-    private Paint mEraserPaint;
+    @BindView(R.id.title_bar)
+    TitleBar mTitleBar;
     private Bitmap mBitmapSrc;
     private Uri mFrontUri;
     private PhotoEnhance pe;
-    private Matrix mImageMatrix = new Matrix();
     private long mTempTime;
+
     private float mSaturation = 128;//图片饱和度0~255
     private float mBrightness = 128;//图片明亮度0~255
     private float mContrast = 128;//图片对比度0~255
 
-    private float downX = 0;
-    private float downY = 0;
-    private float upX = 0;
-    private float upY = 0;
     private Canvas mCanvas;
-    private Bitmap bmp;
     private Paint mPaint;
     private Bitmap mCopyPreBitmap;
     private Path mPath;
@@ -80,12 +82,25 @@ public class EditFrontActivity extends BaseActivity implements View.OnTouchListe
         setContentView(R.layout.activity_edit_front);
         ButterKnife.bind(this);
         mFrontUri = getIntent().getParcelableExtra(INTENT_URI);
-        initView();
+        mTitleBar.setTitle("编辑前景图片");
+        mTitleBar.setRightBtnText("裁剪", new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mIvFront.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(mIvFront.getDrawingCache());
+                mIvFront.setDrawingCacheEnabled(false);
+                Uri uri = Uri.fromFile(AppUtil.saveImageToGallery(mContext, bitmap));
+                CropUtil.startCropActivity((Activity) mContext, uri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
+            }
+        });
+        initView(mFrontUri);
         initListener();
     }
 
     private void initListener() {
         mIvFront.setOnTouchListener(this);
+//        ((RelativeLayout) mIvFront.getParent()).setOnTouchListener(this);
         mWheelSaturation.setScrollingListener(new HorizontalProgressWheelView.ScrollingListener() {
             @Override
             public void onScrollStart() {
@@ -148,8 +163,8 @@ public class EditFrontActivity extends BaseActivity implements View.OnTouchListe
         });
     }
 
-    private void initView() {
-        mBitmapSrc = loadBitmap(mFrontUri);
+    private void initView(Uri uri) {
+        mBitmapSrc = AppUtil.loadBitmap(mContext, uri);
         mCopyPreBitmap = Bitmap.createBitmap(mBitmapSrc.getWidth(), mBitmapSrc.getHeight(), mBitmapSrc.getConfig());
         mCanvas = new Canvas(mCopyPreBitmap);
         mPath = new Path();//实例化画图类
@@ -166,55 +181,7 @@ public class EditFrontActivity extends BaseActivity implements View.OnTouchListe
         mIvFront.setImageBitmap(mCopyPreBitmap);
         pe = new PhotoEnhance(mBitmapSrc);
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));//它的作用是用此画笔后，画笔划过的痕迹就变成透明色了。画笔设置好了后，就可以调用该画笔进行橡皮痕迹的绘制了
-    }
 
-    private Bitmap loadBitmap(Uri uri) {
-        Bitmap bitmap = null;
-
-        InputStream input;
-        try {
-            input = getContentResolver().openInputStream(uri);
-            BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
-            onlyBoundsOptions.inJustDecodeBounds = true;
-            onlyBoundsOptions.inDither = true;//optional
-            onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-            BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
-            input.close();
-            int originalWidth = onlyBoundsOptions.outWidth;
-            int originalHeight = onlyBoundsOptions.outHeight;
-            if ((originalWidth == -1) || (originalHeight == -1))
-                return null;
-            //图片分辨率以480x800为标准
-            float hh = 800f;//这里设置高度为800f
-            float ww = 800f;//这里设置宽度为800f
-            //缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
-            int be = 1;//be=1表示不缩放
-//            if (originalWidth > originalHeight && originalWidth > ww) {//如果宽度大的话根据宽度固定大小缩放
-//                be = (int) (originalWidth / ww);
-//            } else if (originalWidth < originalHeight && originalHeight > hh) {//如果高度高的话根据宽度固定大小缩放
-//                be = (int) (originalHeight / hh);
-//            }
-//            if (be <= 0) {
-//                be = 1;
-//            }
-            //比例压缩
-            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-            bitmapOptions.inSampleSize = be;//设置缩放比例
-            bitmapOptions.inDither = true;//optional
-            bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
-            input = getContentResolver().openInputStream(uri);
-            bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
-            Matrix matrix = new Matrix();
-            matrix.postScale(ww / originalWidth, ww / originalWidth);
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            input.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return bitmap;
     }
 
     private Handler mHandler = new Handler() {
@@ -297,5 +264,54 @@ public class EditFrontActivity extends BaseActivity implements View.OnTouchListe
                 break;
         }
         return true;
+    }
+
+    @Override
+    @OnClick({R.id.btn_save})
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_save:
+                mIvFront.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(mIvFront.getDrawingCache());
+                mIvFront.setDrawingCacheEnabled(false);
+                Uri uri = Uri.fromFile(AppUtil.saveImageToGallery(mContext, bitmap));
+                Intent data = new Intent();
+                data.putExtra(INTENT_URI, uri);
+                setResult(RESULT_OK, data);
+                onBackPressed();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CROP_FRONT_PICTURE:
+                if (resultCode == RESULT_OK) {
+                    final Uri resultUri = UCrop.getOutput(data);
+                    mFrontUri = resultUri;
+                    if (resultUri != null) {
+                        initView(resultUri);
+                    }
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    handleCropError(data);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+    private void handleCropError(@NonNull Intent result) {
+        final Throwable cropError = UCrop.getError(result);
+        if (cropError != null) {
+            Log.e("SheepYang", "handleCropError: ", cropError);
+            showToast(cropError.getMessage());
+        } else {
+            showToast("图片裁剪异常");
+        }
     }
 }

@@ -1,10 +1,10 @@
-package me.sheepyang.switchface;
+package me.sheepyang.switchface.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,26 +13,26 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.UCropActivity;
-
-import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import me.sheepyang.switchface.R;
+import me.sheepyang.switchface.utils.CropUtil;
+
+import static me.sheepyang.switchface.activity.EditFrontActivity.INTENT_URI;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
-    private static final String TAG = "MainActivity";
     private static final int REQUEST_SELECT_FRONT_PICTURE = 0x01;
     private static final int REQUEST_SELECT_BACK_PICTURE = 0x02;
     private static final int REQUEST_CROP_FRONT_PICTURE = 0x03;
     private static final int REQUEST_CROP_BACK_PICTURE = 0x04;
     private static final int REQUEST_TO_EDIT_FRONT = 0x05;
     private static final int REQUEST_TO_EDIT_BACK = 0x06;
+    private static final int REQUEST_TO_MERGE = 0x07;
     @BindView(R.id.iv_front)
     ImageView mIvFront;
     @BindView(R.id.iv_back)
@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    startCropActivity(mFrontUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
+                                    CropUtil.startCropActivity((Activity) mContext, mFrontUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
                                 }
                             }, "裁剪",
                             new DialogInterface.OnClickListener() {
@@ -81,7 +81,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    startCropActivity(mBackUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
+                                    CropUtil.startCropActivity((Activity) mContext, mBackUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
                                 }
                             }, "裁剪",
                             new DialogInterface.OnClickListener() {
@@ -153,7 +153,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 //                                new DialogInterface.OnClickListener() {
 //                                    @Override
 //                                    public void onClick(DialogInterface dialog, int which) {
-                        startCropActivity(selectedUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
+                        CropUtil.startCropActivity((Activity) mContext, selectedUri, REQUEST_CROP_FRONT_PICTURE, System.currentTimeMillis() + "_front.jpg");
 //                                    }
 //                                }, "裁剪",
 //                                new DialogInterface.OnClickListener() {
@@ -163,7 +163,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 //                                    }
 //                                }, "取消");
                     } else {
-                        Toast.makeText(MainActivity.this, "获取图片失败", Toast.LENGTH_SHORT).show();
+                        showToast("获取图片失败");
                     }
                 }
                 break;
@@ -176,7 +176,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 //                                new DialogInterface.OnClickListener() {
 //                                    @Override
 //                                    public void onClick(DialogInterface dialog, int which) {
-                        startCropActivity(selectedUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
+                        CropUtil.startCropActivity((Activity) mContext, selectedUri, REQUEST_CROP_BACK_PICTURE, System.currentTimeMillis() + "_back.jpg");
 //                                    }
 //                                }, "裁剪",
 //                                new DialogInterface.OnClickListener() {
@@ -186,7 +186,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 //                                    }
 //                                }, "取消");
                     } else {
-                        Toast.makeText(MainActivity.this, "获取图片失败", Toast.LENGTH_SHORT).show();
+                        showToast("获取图片失败");
                     }
                 }
                 break;
@@ -212,6 +212,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     handleCropError(data);
                 }
                 break;
+            case REQUEST_TO_EDIT_FRONT://编辑前景图片后返回
+                if (resultCode == RESULT_OK && data != null) {
+                    final Uri resultUri = data.getParcelableExtra(EditFrontActivity.INTENT_URI);
+                    mFrontUri = resultUri;
+                    if (resultUri != null) {
+                        showPicture(mIvFront, resultUri);
+                    }
+                }
+                break;
+            case REQUEST_TO_MERGE://融合后返回
+                if (resultCode == RESULT_OK && data != null) {
+
+                }
+                break;
             default:
                 break;
         }
@@ -223,80 +237,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 .centerCrop()
                 .placeholder(R.drawable.select_image)
                 .into(view);
-    }
-
-    private void startCropActivity(@NonNull Uri uri, int resquestCode, String fileName) {
-        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), fileName)));
-
-        //使用图片纵横比
-        uCrop = uCrop.withAspectRatio(1, 1);
-        uCrop = advancedConfig(uCrop);
-
-        uCrop.start(MainActivity.this, resquestCode);
-    }
-
-    /**
-     * Sometimes you want to adjust more options, it's done via {@link com.yalantis.ucrop.UCrop.Options} class.
-     *
-     * @param uCrop - ucrop builder instance
-     * @return - ucrop builder instance
-     */
-    private UCrop advancedConfig(@NonNull UCrop uCrop) {
-        UCrop.Options options = new UCrop.Options();
-        //图片格式
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
-        //图片压缩质量
-        options.setCompressionQuality(100);
-        options.setFreeStyleCropEnabled(true);
-
-//        /*
-//        If you want to configure how gestures work for all UCropActivity tabs
-
-        options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.ALL);
-//        * */
-
-        /*
-        This sets max size for bitmap that will be decoded from source Uri.
-        More size - more memory allocation, default implementation uses screen diagonal.
-
-        options.setMaxBitmapSize(640);
-        * */
-
-
-       /*
-
-        Tune everything (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧
-
-        options.setMaxScaleMultiplier(5);
-        options.setImageToCropBoundsAnimDuration(666);
-        options.setDimmedLayerColor(Color.CYAN);
-        options.setCircleDimmedLayer(true);
-        options.setShowCropFrame(false);
-        options.setCropGridStrokeWidth(20);
-        options.setCropGridColor(Color.GREEN);
-        options.setCropGridColumnCount(2);
-        options.setCropGridRowCount(1);
-        options.setToolbarCropDrawable(R.drawable.your_crop_icon);
-        options.setToolbarCancelDrawable(R.drawable.your_cancel_icon);
-
-        // Color palette
-        options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
-        options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
-        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
-        options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
-        options.setRootViewBackgroundColor(ContextCompat.getColor(this, R.color.your_color_res));
-
-        // Aspect ratio options
-        options.setAspectRatioOptions(1,
-            new AspectRatio("WOW", 1, 2),
-            new AspectRatio("MUCH", 3, 4),
-            new AspectRatio("RATIO", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO),
-            new AspectRatio("SO", 16, 9),
-            new AspectRatio("ASPECT", 1, 1));
-
-       */
-
-        return uCrop.withOptions(options);
     }
 
     @Override
@@ -314,7 +254,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     pickFromGallery(REQUEST_SELECT_FRONT_PICTURE);
                 } else {
                     Intent intent = new Intent(this, EditFrontActivity.class);
-                    intent.putExtra(EditFrontActivity.INTENT_URI, mFrontUri);
+                    intent.putExtra(INTENT_URI, mFrontUri);
                     startActivityForResult(intent, REQUEST_TO_EDIT_FRONT);
                 }
                 break;
@@ -328,13 +268,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 }
                 break;
             case R.id.btn_merge:
-                Toast.makeText(MainActivity.this, "进行融合,暂未开放~", Toast.LENGTH_SHORT).show();
+                if (mFrontUri == null) {
+                    showToast("请选择前景图片");
+                    return;
+                }
+                if (mBackUri == null) {
+                    showToast("请选择背景图片");
+                    return;
+                }
+                Intent intent = new Intent(this, MergeActivity.class);
+                intent.putExtra(MergeActivity.INTENT_FRONT_URI, mFrontUri);
+                intent.putExtra(MergeActivity.INTENT_BACK_URI, mBackUri);
+                startActivityForResult(intent, REQUEST_TO_MERGE);
                 break;
             case R.id.iv_merge:
-                Toast.makeText(MainActivity.this, "融合的图片", Toast.LENGTH_SHORT).show();
+                showToast("融合的图片");
                 break;
             case R.id.btn_share:
-                Toast.makeText(MainActivity.this, "分享图片暂未开放~", Toast.LENGTH_SHORT).show();
+                showToast("分享图片暂未开放~");
                 break;
             default:
                 break;
@@ -345,10 +296,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void handleCropError(@NonNull Intent result) {
         final Throwable cropError = UCrop.getError(result);
         if (cropError != null) {
-            Log.e(TAG, "handleCropError: ", cropError);
-            Toast.makeText(MainActivity.this, cropError.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("SheepYang", "handleCropError: ", cropError);
+            showToast(cropError.getMessage());
         } else {
-            Toast.makeText(MainActivity.this, "图片裁剪异常", Toast.LENGTH_SHORT).show();
+            showToast("图片裁剪异常");
         }
     }
 }
